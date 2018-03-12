@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Title</title>
+  <style>
+    body {
+      overflow: hidden;
+      margin: 0;
+    }
+
+    .video_crop_select_box {
+      -webkit-app-region: drag;
+      width: 100%;
+      height: 100vh;
+      box-sizing: border-box;
+      border: solid 2px #ef5821;
+      position: relative;
+      cursor: move;
+    }
+
+    .circle {
+      width: 8px;
+      height: 8px;
+      border-radius: 8px;
+      background-color: #ffffff;
+      border: solid 2px #ef5821;
+      position: absolute;
+    }
+
+    .left {
+      left: -5px;
+    }
+
+    .right {
+      right: -5px;
+    }
+
+    .top {
+      top: -5px;
+    }
+
+    .bottom {
+      bottom: -5px;
+    }
+
+  </style>
+</head>
+<body>
+<div class="video_crop_select_box">
+  <span class="circle left top"></span>
+  <span class="circle left bottom"></span>
+  <span class="circle right top"></span>
+  <span class="circle right bottom"></span>
+</div>
+<script>
+  require('electron').webFrame.setZoomLevelLimits(1, 1);
+</script>
+</body>
+</html>

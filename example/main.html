@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Main</title>
+</head>
+<body>
+  <button id="openBtn">打开捕获窗口</button>
+  <button id="closeBtn">关闭捕获窗口</button>
+  <p id="pos">0x0 (0, 0)</p>
+</body>
+<script>
+  const electron = require('electron');
+  const url = require('url');
+  const path = require('path');
+  const remote = electron.remote;
+  const { BrowserWindow, screen } = remote
+  let cropperWindow;
+  const openBtn = document.getElementById('openBtn');
+  const closeBtn = document.getElementById('closeBtn');
+  const posDom = document.getElementById('pos');
+  openBtn.addEventListener('click', openCropper);
+  closeBtn.addEventListener('click', () => {
+    if (cropperWindow) {
+      cropperWindow.close();
+      cropperWindow = null;
+    }
+  })
+
+
+  function openCropper() {
+    cropperWindow = new BrowserWindow({
+      width: 600,
+      height: 600,
+      frame: false,
+      center: true,
+      minWidth: 10,
+      minHeight: 10,
+      transparent: true,
+      resizable: true,
+      hasShadow: false,
+      enableLargerThanScreen: true,
+    });
+    cropperWindow.setAlwaysOnTop(true, 'screen-saver');
+
+    cropperWindow.loadURL(url.format({
+      pathname: path.join(__dirname, '../cropper.html'),
+      protocol: 'file:',
+      slashes: true
+    }))
+
+    let size = {
+      x: 0,
+      y: 0,
+      width: 600,
+      height: 600
+    }
+
+    function updatePosition(x, y, width, height) {
+      size.x = x;
+      size.y = y;
+      size.width = width;
+      size.height = height;
+      posDom.innerText = `${size.width}x${size.height} (${size.x}, ${size.y})`;
+    }
+
+    let displays = electron.screen.getAllDisplays()
+    let externalDisplay = displays.find((display) => {
+      console.log(display.bounds);
+      return display.bounds.x !== 0 || display.bounds.y !== 0
+    })
+    console.log(externalDisplay, externalDisplay.bounds);
+
+
+    cropperWindow.on('move', () => {
+      let [x, y] = cropperWindow.getPosition();
+      const [width, height] = cropperWindow.getSize();
+      updatePosition(x, y, width, height);
+    })
+
+    cropperWindow.on('resize', (e) => {
+      const [width, height] = cropperWindow.getSize();
+      if (width % 4 !== 0 || height % 16 !== 0) {
+        e.preventDefault();
+        return;
+      }
+      updatePosition(size.x, size.y, width, height);
+    })
+  }
+</script>
+</html>
